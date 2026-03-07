@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>K8s Playground — Master Kubernetes</title>
+  <meta name="description"
+    content="Interactive Kubernetes playground with simulated terminal, command reference, architecture visualizer, quiz and production-level interview Q&A." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="index.css" />
+</head>
+
+<body>
+  <!-- NAV -->
+  <nav id="navbar">
+    <div class="nav-brand">
+      <div class="nav-logo">
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="16" cy="16" r="15" stroke="url(#ng)" stroke-width="2" />
+          <path d="M16 6l2.5 5 5.5.8-4 3.9.9 5.5L16 18.5l-4.9 2.7.9-5.5-4-3.9 5.5-.8L16 6z" fill="url(#ng2)" />
+          <defs>
+            <linearGradient id="ng" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#326CE5" />
+              <stop offset="1" stop-color="#00D4FF" />
+            </linearGradient>
+            <linearGradient id="ng2" x1="0" y1="6" x2="32" y2="26" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#326CE5" />
+              <stop offset="1" stop-color="#00D4FF" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <span class="nav-title">K8s Playground</span>
+    </div>
+    <div class="nav-links">
+      <a href="#terminal" class="nav-link" data-section="terminal">Terminal</a>
+      <a href="#commands" class="nav-link" data-section="commands">Commands</a>
+      <a href="#architecture" class="nav-link" data-section="architecture">Architecture</a>
+      <a href="#quiz" class="nav-link" data-section="quiz">Quiz</a>
+      <a href="#interview" class="nav-link" data-section="interview">Interview</a>
+    </div>
+    <div class="nav-actions">
+      <div id="progress-badge" class="progress-badge">
+        <span id="progress-icon">🎯</span>
+        <span id="progress-text">0% Complete</span>
+      </div>
+      <button id="reset-btn" class="btn-ghost" title="Reset Progress">↺ Reset</button>
+    </div>
+    <button class="nav-toggle" id="nav-toggle" aria-label="Toggle nav">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-particles" id="particles"></div>
+    <div class="hero-content">
+      <div class="hero-badge">🚀 Interactive Learning Environment</div>
+      <h1 class="hero-title">
+        Master <span class="gradient-text">Kubernetes</span><br />Like a Pro
+      </h1>
+      <p class="hero-subtitle">
+        Simulate commands, explore architecture, crush your interviews.<br />
+        All in one dynamic playground.
+      </p>
+      <div class="hero-stats">
+        <div class="stat-card"><span class="stat-num">50+</span><span class="stat-label">Commands</span></div>
+        <div class="stat-card"><span class="stat-num">8</span><span class="stat-label">Categories</span></div>
+        <div class="stat-card"><span class="stat-num">40+</span><span class="stat-label">Interview Q&A</span></div>
+        <div class="stat-card"><span class="stat-num">Interactive</span><span class="stat-label">Terminal</span></div>
+      </div>
+      <div class="hero-cta">
+        <a href="#terminal" class="btn-primary">Open Terminal →</a>
+        <a href="#commands" class="btn-secondary">Browse Commands</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="k8s-orbit" id="k8s-orbit">
+        <div class="orbit-center">
+          <div class="orbit-logo">⎈</div>
+          <span>K8s</span>
+        </div>
+        <div class="orbit-ring ring-1">
+          <div class="orbit-node" style="--angle:0deg" data-label="Pod">🟦</div>
+          <div class="orbit-node" style="--angle:60deg" data-label="Service">🟩</div>
+          <div class="orbit-node" style="--angle:120deg" data-label="Deployment">🟨</div>
+          <div class="orbit-node" style="--angle:180deg" data-label="Node">🟥</div>
+          <div class="orbit-node" style="--angle:240deg" data-label="ConfigMap">🟪</div>
+          <div class="orbit-node" style="--angle:300deg" data-label="Ingress">🟧</div>
+        </div>
+        <div class="orbit-ring ring-2">
+          <div class="orbit-node" style="--angle:30deg" data-label="Secret">🔐</div>
+          <div class="orbit-node" style="--angle:150deg" data-label="PVC">💾</div>
+          <div class="orbit-node" style="--angle:270deg" data-label="RBAC">🔑</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TERMINAL -->
+  <section id="terminal" class="section">
+    <div class="section-header">
+      <h2 class="section-title">🖥️ Interactive Terminal</h2>
+      <p class="section-subtitle">Simulate kubectl commands and see real-world outputs. Type <code>help</code> to get
+        started.</p>
+    </div>
+    <div class="terminal-container">
+      <div class="terminal-topbar">
+        <div class="terminal-dots">
+          <span class="dot red"></span>
+          <span class="dot yellow"></span>
+          <span class="dot green"></span>
+        </div>
+        <div class="terminal-title">kubectl — k8s-playground-cluster</div>
+        <div class="terminal-actions">
+          <button id="clear-terminal" class="term-btn">Clear</button>
+          <button id="copy-terminal" class="term-btn">Copy</button>
+        </div>
+      </div>
+      <div class="terminal-body" id="terminal-body">
+        <div class="term-output term-welcome">
+          <span class="term-comment"># Welcome to K8s Playground Terminal!</span><br />
+          <span class="term-comment"># Type <strong>help</strong> to see all available commands</span><br />
+          <span class="term-comment"># Type <strong>tutorial</strong> to start the guided tour</span>
+        </div>
+      </div>
+      <div class="terminal-input-row">
+        <span class="term-prompt"><span class="term-user">k8s-user</span>@<span
+            class="term-cluster">playground</span>:~$</span>
+        <input type="text" id="terminal-input" class="term-input" placeholder="Type a kubectl command..."
+          autocomplete="off" spellcheck="false" />
+        <button id="run-cmd" class="run-btn">⏎ Run</button>
+      </div>
+      <div class="terminal-suggestions" id="terminal-suggestions"></div>
+      <div class="terminal-quick-cmds">
+        <span class="quick-label">Quick:</span>
+        <button class="quick-cmd" data-cmd="kubectl get pods">get pods</button>
+        <button class="quick-cmd" data-cmd="kubectl get nodes">get nodes</button>
+        <button class="quick-cmd" data-cmd="kubectl get services">get services</button>
+        <button class="quick-cmd" data-cmd="kubectl get deployments">get deployments</button>
+        <button class="quick-cmd" data-cmd="kubectl get namespaces">get namespaces</button>
+        <button class="quick-cmd" data-cmd="kubectl cluster-info">cluster-info</button>
+        <button class="quick-cmd" data-cmd="help">help</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMMANDS REFERENCE -->
+  <section id="commands" class="section">
+    <div class="section-header">
+      <h2 class="section-title">📋 Commands Reference</h2>
+      <p class="section-subtitle">50+ essential kubectl commands organized by category with examples.</p>
+    </div>
+    <div class="commands-controls">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="cmd-search" placeholder="Search commands..." class="search-input" />
+        <button id="cmd-search-clear" class="search-clear" style="display:none">✕</button>
+      </div>
+      <div class="category-tabs" id="category-tabs">
+        <button class="tab-btn active" data-category="all">All</button>
+        <button class="tab-btn" data-category="basics">Basics</button>
+        <button class="tab-btn" data-category="pods">Pods</button>
+        <button class="tab-btn" data-category="deployments">Deployments</button>
+        <button class="tab-btn" data-category="services">Services</button>
+        <button class="tab-btn" data-category="config">Config</button>
+        <button class="tab-btn" data-category="storage">Storage</button>
+        <button class="tab-btn" data-category="rbac">RBAC</button>
+        <button class="tab-btn" data-category="debugging">Debugging</button>
+      </div>
+    </div>
+    <div class="commands-grid" id="commands-grid">
+      <!-- Populated by JS -->
+    </div>
+    <div id="no-results" class="no-results" style="display:none">
+      <span>🔎</span>
+      <p>No commands found for "<span id="no-results-query"></span>"</p>
+    </div>
+  </section>
+
+  <!-- ARCHITECTURE VISUALIZER -->
+  <section id="architecture" class="section">
+    <div class="section-header">
+      <h2 class="section-title">🏗️ K8s Architecture</h2>
+      <p class="section-subtitle">Click on components to learn how they fit together.</p>
+    </div>
+    <div class="arch-wrapper">
+      <div class="arch-diagram" id="arch-diagram">
+        <!-- CLUSTER -->
+        <div class="arch-cluster">
+          <div class="arch-cluster-label">Kubernetes Cluster</div>
+
+          <!-- Control Plane -->
+          <div class="arch-plane control-plane">
+            <div class="arch-plane-label">Control Plane (Master Node)</div>
+            <div class="arch-components">
+              <div class="arch-comp" id="comp-apiserver" data-comp="apiserver">
+                <div class="comp-icon">🔌</div>
+                <div class="comp-name">API Server</div>
+              </div>
+              <div class="arch-comp" id="comp-etcd" data-comp="etcd">
+                <div class="comp-icon">💾</div>
+                <div class="comp-name">etcd</div>
+              </div>
+              <div class="arch-comp" id="comp-scheduler" data-comp="scheduler">
+                <div class="comp-icon">📅</div>
+                <div class="comp-name">Scheduler</div>
+              </div>
+              <div class="arch-comp" id="comp-controller" data-comp="controller">
+                <div class="comp-icon">🔄</div>
+                <div class="comp-name">Controller Manager</div>
+              </div>
+              <div class="arch-comp" id="comp-ccm" data-comp="ccm">
+                <div class="comp-icon">☁️</div>
+                <div class="comp-name">Cloud Controller</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Worker Nodes -->
+          <div class="arch-plane worker-plane">
+            <div class="arch-plane-label">Worker Nodes</div>
+            <div class="arch-nodes-row">
+              <div class="arch-node">
+                <div class="arch-node-label">Node 1</div>
+                <div class="arch-comp" id="comp-kubelet" data-comp="kubelet">
+                  <div class="comp-icon">🤖</div>
+                  <div class="comp-name">kubelet</div>
+                </div>
+                <div class="arch-comp" id="comp-kproxy" data-comp="kproxy">
+                  <div class="comp-icon">🔀</div>
+                  <div class="comp-name">kube-proxy</div>
+                </div>
+                <div class="arch-pod-row">
+                  <div class="arch-comp mini-comp" id="comp-pod" data-comp="pod">
+                    <div class="comp-icon">📦</div>
+                    <div class="comp-name">Pod</div>
+                  </div>
+                  <div class="arch-comp mini-comp" id="comp-pod2" data-comp="pod">
+                    <div class="comp-icon">📦</div>
+                    <div class="comp-name">Pod</div>
+                  </div>
+                </div>
+              </div>
+              <div class="arch-node">
+                <div class="arch-node-label">Node 2</div>
+                <div class="arch-comp" data-comp="kubelet">
+                  <div class="comp-icon">🤖</div>
+                  <div class="comp-name">kubelet</div>
+                </div>
+                <div class="arch-comp" data-comp="kproxy">
+                  <div class="comp-icon">🔀</div>
+                  <div class="comp-name">kube-proxy</div>
+                </div>
+                <div class="arch-pod-row">
+                  <div class="arch-comp mini-comp" data-comp="pod">
+                    <div class="comp-icon">📦</div>
+                    <div class="comp-name">Pod</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- External Components -->
+          <div class="arch-external-row">
+            <div class="arch-comp ext-comp" id="comp-ingress" data-comp="ingress">
+              <div class="comp-icon">🌐</div>
+              <div class="comp-name">Ingress</div>
+            </div>
+            <div class="arch-comp ext-comp" id="comp-service" data-comp="service">
+              <div class="comp-icon">🔗</div>
+              <div class="comp-name">Service</div>
+            </div>
+            <div class="arch-comp ext-comp" id="comp-pvc" data-comp="pvc">
+              <div class="comp-icon">💿</div>
+              <div class="comp-name">PV / PVC</div>
+            </div>
+            <div class="arch-comp ext-comp" id="comp-configmap" data-comp="configmap">
+              <div class="comp-icon">⚙️</div>
+              <div class="comp-name">ConfigMap</div>
+            </div>
+            <div class="arch-comp ext-comp" id="comp-secret" data-comp="secret">
+              <div class="comp-icon">🔐</div>
+              <div class="comp-name">Secret</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Info Panel -->
+      <div class="arch-info-panel" id="arch-info-panel">
+        <div class="arch-info-default">
+          <div class="arch-info-emoji">👆</div>
+          <p>Click any component to learn about it</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="quiz" class="section">
+    <div class="section-header">
+      <h2 class="section-title">🧠 Practice Quiz</h2>
+      <p class="section-subtitle">Test your Kubernetes knowledge with multiple-choice questions.</p>
+    </div>
+    <div class="quiz-container" id="quiz-container">
+      <div class="quiz-start" id="quiz-start">
+        <div class="quiz-start-icon">🚀</div>
+        <h3>Ready to Test Your K8s Knowledge?</h3>
+        <p>Choose a difficulty level and start the quiz.</p>
+        <div class="quiz-difficulty">
+          <button class="diff-btn active" id="diff-beginner" data-diff="beginner">🟢 Beginner</button>
+          <button class="diff-btn" id="diff-intermediate" data-diff="intermediate">🟡 Intermediate</button>
+          <button class="diff-btn" id="diff-advanced" data-diff="advanced">🔴 Advanced</button>
+          <button class="diff-btn" id="diff-all" data-diff="all">⚡ All Levels</button>
+        </div>
+        <div class="quiz-config">
+          <label>Number of Questions:
+            <select id="quiz-count" class="quiz-select">
+              <option value="5">5 Questions</option>
+              <option value="10" selected>10 Questions</option>
+              <option value="15">15 Questions</option>
+              <option value="20">20 Questions</option>
+            </select>
+          </label>
+        </div>
+        <button class="btn-primary" id="start-quiz">Start Quiz →</button>
+        <div class="quiz-best-score" id="quiz-best-score"></div>
+      </div>
+
+      <div class="quiz-active" id="quiz-active" style="display:none">
+        <div class="quiz-header">
+          <div class="quiz-progress-bar">
+            <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+          </div>
+          <div class="quiz-meta">
+            <span id="quiz-qnum">Question 1/10</span>
+            <span id="quiz-score-live">Score: 0</span>
+            <span id="quiz-timer" class="quiz-timer">⏱ 30s</span>
+          </div>
+        </div>
+        <div class="quiz-question-card" id="quiz-question-card">
+          <div class="quiz-diff-badge" id="quiz-diff-badge"></div>
+          <h3 id="quiz-question-text"></h3>
+          <div class="quiz-options" id="quiz-options"></div>
+          <div class="quiz-explanation" id="quiz-explanation" style="display:none"></div>
+          <div class="quiz-actions">
+            <button class="btn-secondary" id="quiz-skip">Skip</button>
+            <button class="btn-primary" id="quiz-next" style="display:none">Next →</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="quiz-results" id="quiz-results" style="display:none">
+        <div class="result-emoji" id="result-emoji"></div>
+        <h3 id="result-title"></h3>
+        <div class="result-score-ring">
+          <svg viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="50" stroke="#1e2030" stroke-width="12" fill="none" />
+            <circle cx="60" cy="60" r="50" stroke="url(#ring-grad)" stroke-width="12" fill="none" stroke-dasharray="314"
+              stroke-dashoffset="314" id="ring-progress" stroke-linecap="round" transform="rotate(-90 60 60)" />
+            <defs>
+              <linearGradient id="ring-grad" x1="0" y1="0" x2="120" y2="120" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#326CE5" />
+                <stop offset="1" stop-color="#00D4FF" />
+              </linearGradient>
+            </defs>
+          </svg>
+          <div class="ring-text">
+            <span id="result-percent"></span>
+            <small>Score</small>
+          </div>
+        </div>
+        <div class="result-stats">
+          <div class="result-stat"><span id="res-correct">0</span><small>Correct</small></div>
+          <div class="result-stat"><span id="res-wrong">0</span><small>Wrong</small></div>
+          <div class="result-stat"><span id="res-skipped">0</span><small>Skipped</small></div>
+        </div>
+        <p id="result-message"></p>
+        <div class="result-actions">
+          <button class="btn-primary" id="quiz-retry">Try Again</button>
+          <button class="btn-secondary" id="quiz-review">Review Answers</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INTERVIEW Q&A -->
+  <section id="interview" class="section">
+    <div class="section-header">
+      <h2 class="section-title">💼 Interview Prep</h2>
+      <p class="section-subtitle">40+ production-level Kubernetes interview questions with detailed answers.</p>
+    </div>
+    <div class="interview-controls">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="interview-search" placeholder="Search questions..." class="search-input" />
+      </div>
+      <div class="category-tabs" id="interview-tabs">
+        <button class="tab-btn active" data-icat="all">All</button>
+        <button class="tab-btn" data-icat="fundamentals">Fundamentals</button>
+        <button class="tab-btn" data-icat="networking">Networking</button>
+        <button class="tab-btn" data-icat="storage">Storage</button>
+        <button class="tab-btn" data-icat="security">Security</button>
+        <button class="tab-btn" data-icat="scaling">Scaling</button>
+        <button class="tab-btn" data-icat="production">Production</button>
+        <button class="tab-btn" data-icat="troubleshooting">Troubleshooting</button>
+      </div>
+      <div class="interview-view-toggle">
+        <button class="view-btn active" id="view-accordion" title="Accordion View">≡ Accordion</button>
+        <button class="view-btn" id="view-flashcard" title="Flashcard View">◫ Flashcards</button>
+      </div>
+    </div>
+    <div id="interview-accordion" class="interview-accordion">
+      <!-- Populated by JS -->
+    </div>
+    <div id="interview-flashcard" class="interview-flashcard" style="display:none">
+      <div class="flashcard-nav">
+        <button class="btn-ghost" id="fc-prev">← Prev</button>
+        <span id="fc-counter">1 / 40</span>
+        <button class="btn-ghost" id="fc-next">Next →</button>
+      </div>
+      <div class="flashcard-wrapper">
+        <div class="flashcard" id="flashcard">
+          <div class="flashcard-front">
+            <div class="fc-badge" id="fc-badge"></div>
+            <p id="fc-question"></p>
+            <span class="fc-hint">Click to reveal answer</span>
+          </div>
+          <div class="flashcard-back">
+            <p id="fc-answer"></p>
+            <div class="fc-actions">
+              <button class="fc-rate" data-rating="hard">😓 Hard</button>
+              <button class="fc-rate" data-rating="medium">🤔 Medium</button>
+              <button class="fc-rate" data-rating="easy">✅ Easy</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer id="footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <span class="footer-logo">⎈</span>
+        <span>K8s Playground</span>
+      </div>
+      <p>Built for Kubernetes learners and interview candidates. Practice, learn, succeed.</p>
+      <div class="footer-links">
+        <a href="https://kubernetes.io/docs" target="_blank" rel="noopener">Official Docs ↗</a>
+        <a href="https://kubernetes.io/docs/reference/kubectl/cheatsheet/" target="_blank" rel="noopener">kubectl
+          Cheatsheet ↗</a>
+        <a href="https://kubernetes.io/docs/concepts/" target="_blank" rel="noopener">K8s Concepts ↗</a>
+      </div>
+    </div>
+  </footer>
+
+  <div id="toast-container"></div>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>
