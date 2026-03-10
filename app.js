@@ -1097,6 +1097,168 @@ function updateProgress() {
     $('progress-icon').textContent = pct >= 80 ? '🏆' : pct >= 50 ? '🎯' : '📚';
 }
 
+// ---- LEARN SECTION ----
+const LEARN_CATEGORIES = [
+    { id: 'fundamentals', label: 'FUNDAMENTALS' },
+    { id: 'workloads', label: 'WORKLOADS' },
+    { id: 'networking', label: 'NETWORKING' },
+    { id: 'configuration', label: 'CONFIGURATION' },
+    { id: 'advanced', label: 'ADVANCED' },
+];
+
+let learnDone = new Set(JSON.parse(localStorage.getItem('k8s_learn_done') || '[]'));
+let currentTopicId = null;
+
+function saveLearnDone() {
+    localStorage.setItem('k8s_learn_done', JSON.stringify([...learnDone]));
+}
+
+function updateLearnProgress() {
+    const total = LEARN_TOPICS.length;
+    const done = learnDone.size;
+    const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+    const fillEl = document.getElementById('learn-progress-fill');
+    const labelEl = document.getElementById('learn-progress-label');
+    if (fillEl) fillEl.style.width = pct + '%';
+    if (labelEl) labelEl.textContent = `${done} / ${total} topics completed`;
+}
+
+function renderLearnSidebar() {
+    const sidebar = document.getElementById('learn-sidebar');
+    if (!sidebar) return;
+    let html = '';
+    LEARN_CATEGORIES.forEach(cat => {
+        const topics = LEARN_TOPICS.filter(t => t.category === cat.id);
+        if (!topics.length) return;
+        html += `<div class="learn-cat-header">${cat.label}</div>`;
+        topics.forEach(t => {
+            const isDone = learnDone.has(t.id);
+            const isActive = t.id === currentTopicId;
+            html += `
+        <div class="learn-topic-item${isActive ? ' active' : ''}${isDone ? ' done' : ''}" data-topic-id="${t.id}">
+          <span class="learn-topic-icon">${t.icon}</span>
+          <span class="learn-topic-title">${t.title}</span>
+          <span class="learn-level-dot ${t.level}" title="${t.level}"></span>
+          ${isDone ? '<span class="learn-topic-check">✓</span>' : ''}
+        </div>`;
+        });
+    });
+    sidebar.innerHTML = html;
+
+    sidebar.querySelectorAll('.learn-topic-item').forEach(el => {
+        el.addEventListener('click', () => showTopic(el.dataset.topicId));
+    });
+}
+
+function showTopic(id) {
+    const topic = LEARN_TOPICS.find(t => t.id === id);
+    if (!topic) return;
+    currentTopicId = id;
+
+    // Mark as done when opened
+    learnDone.add(id);
+    saveLearnDone();
+    updateLearnProgress();
+    renderLearnSidebar();
+
+    const topicList = LEARN_TOPICS;
+    const idx = topicList.findIndex(t => t.id === id);
+    const prev = topicList[idx - 1];
+    const next = topicList[idx + 1];
+
+    const catLabel = LEARN_CATEGORIES.find(c => c.id === topic.category)?.label || topic.category;
+
+    // Build quiz HTML
+    const letters = ['A', 'B', 'C', 'D'];
+    const quizHtml = topic.quiz && topic.quiz.length ? `
+    <div class="learn-quiz">
+      <div class="learn-quiz-title">✏️ Practice Questions</div>
+      ${topic.quiz.map((q, qi) => `
+        <div class="learn-quiz-item" data-qi="${qi}" data-ans="${q.ans}">
+          <div class="learn-quiz-q"><span>${qi + 1}.</span> ${q.q}</div>
+          <div class="learn-quiz-opts">
+            ${q.opts.map((o, oi) => `
+              <button class="learn-quiz-opt" data-oi="${oi}">
+                <span class="learn-quiz-opt-letter">${letters[oi]}</span>
+                ${o}
+              </button>`).join('')}
+          </div>
+        </div>`).join('')}
+    </div>` : '';
+
+    const contentEl = document.getElementById('learn-content');
+    contentEl.innerHTML = `
+    <div class="learn-lesson">
+      <div class="learn-lesson-header">
+        <div class="learn-lesson-meta">
+          <span class="learn-lesson-cat">${catLabel}</span>
+          <span class="learn-lesson-level ${topic.level}">${topic.level}</span>
+        </div>
+        <div class="learn-lesson-title">${topic.icon} ${topic.title}</div>
+      </div>
+      <div class="learn-lesson-nav">
+        <button class="learn-nav-btn" id="learn-prev" ${!prev ? 'disabled' : ''}>← Previous</button>
+        <button class="learn-nav-btn" id="learn-next" ${!next ? 'disabled' : ''}>Next →</button>
+        <button class="learn-nav-btn mark-done" id="learn-mark-done">✓ Mark Complete</button>
+      </div>
+      <div class="learn-lesson-body">${topic.content}</div>
+      ${quizHtml}
+    </div>`;
+
+    // Nav buttons
+    if (prev) document.getElementById('learn-prev').addEventListener('click', () => showTopic(prev.id));
+    if (next) document.getElementById('learn-next').addEventListener('click', () => showTopic(next.id));
+    document.getElementById('learn-mark-done').addEventListener('click', () => {
+        learnDone.add(id);
+        saveLearnDone();
+        updateLearnProgress();
+        renderLearnSidebar();
+        toast('Topic marked complete! ✓', 'success');
+    });
+
+    // Quiz interactions
+    contentEl.querySelectorAll('.learn-quiz-item').forEach(item => {
+        const correctIdx = parseInt(item.dataset.ans);
+        const qi = parseInt(item.dataset.qi);
+        const exp = topic.quiz[qi].exp;
+        item.querySelectorAll('.learn-quiz-opt').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (item.querySelector('.learn-quiz-opt.correct')) return; // already answered
+                const chosen = parseInt(btn.dataset.oi);
+                const isCorrect = chosen === correctIdx;
+                // Disable all
+                item.querySelectorAll('.learn-quiz-opt').forEach(b => b.classList.add('disabled'));
+                btn.classList.add(isCorrect ? 'correct' : 'wrong');
+                if (!isCorrect) item.querySelectorAll('.learn-quiz-opt')[correctIdx].classList.add('correct');
+                // Show explanation
+                const expEl = document.createElement('div');
+                expEl.className = `learn-quiz-exp${isCorrect ? ' correct-exp' : ''}`;
+                expEl.innerHTML = `<strong>${isCorrect ? '✅ Correct!' : '❌ Incorrect!'}</strong> ${exp}`;
+                item.appendChild(expEl);
+            });
+        });
+    });
+
+    // Scroll to top of content
+    contentEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initLearn() {
+    updateLearnProgress();
+    renderLearnSidebar();
+
+    const resetBtn = document.getElementById('learn-reset');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+            learnDone.clear();
+            saveLearnDone();
+            updateLearnProgress();
+            renderLearnSidebar();
+            toast('Learning progress reset.', 'info');
+        });
+    }
+}
+
 // ---- INIT ----
 document.addEventListener('DOMContentLoaded', () => {
     initParticles();
@@ -1106,6 +1268,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initArchitecture();
     initQuiz();
     initInterview();
+    initLearn();
     updateProgress();
 
     // Smooth scroll for nav links

@@ -12,6 +12,7 @@ An **interactive Kubernetes learning platform** built with vanilla HTML, CSS, an
 |---|---|
 | 🖥️ **Terminal** | Interactive kubectl simulator with 50+ commands, regex pattern matching, and realistic output |
 | 📚 **Commands** | Cheatsheet with 65+ commands across 8 categories (Basics, Pods, Deployments, Services, Config, Storage, RBAC, Debugging) |
+| 🎓 **Learn** | Guided learning path with 15+ topics, interactive content, and topic-specific quizzes |
 | 🏗️ **Architecture** | Interactive K8s architecture diagram with detailed component cards |
 | 🧠 **Quiz** | 22 multiple-choice questions (Beginner / Intermediate / Advanced) with explanations |
 | 🎤 **Interview Prep** | 43 production-level interview Q&A with detailed answers and code examples |
